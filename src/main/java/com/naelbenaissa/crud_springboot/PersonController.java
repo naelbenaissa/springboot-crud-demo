@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/persons")
@@ -31,5 +32,21 @@ public class PersonController {
         return personRepository.findById(id)
                 .map(person -> new ResponseEntity<>(person, HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Person> updatePerson(@PathVariable Long id, @RequestBody Person personDetails) {
+        Optional<Person> person = personRepository.findById(id);
+
+        if(person.isPresent()) {
+            Person existingPerson = person.get();
+            existingPerson.setCity(personDetails.getCity());
+            existingPerson.setPhoneNumber(personDetails.getPhoneNumber());
+
+            Person updatedPerson = personRepository.save(existingPerson);
+            return new ResponseEntity<>(updatedPerson, HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 }
